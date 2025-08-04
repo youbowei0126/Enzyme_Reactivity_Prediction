@@ -1,0 +1,13 @@
+# .history
+# *.joblib
+# *.svg
+# *.png
+# */**/A03_models/*
+# ref
+*
+!*/
+!.gitignore
+!README.md
+!*.ipynb
+!*.py
+ref
