@@ -6,6 +6,7 @@
 # ref
 *
 !*/
+.history
 !.gitignore
 !README.md
 !*.ipynb
