@@ -11,4 +11,7 @@
 !README.md
 !*.ipynb
 !*.py
-ref
+ref/
+!presentation/
+presentation/*
+!presentation/project\ wrap\ up_\ Enzyme\ Reactivity\ Prediction.pdf
