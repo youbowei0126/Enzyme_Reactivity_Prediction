@@ -249,7 +249,6 @@ class DiffusionGenerativeModel(nn.Module):
         return x + noise
 
 
-
 @dataclass(init=True, repr=True, eq=False, order=False, unsafe_hash=False, frozen=False)
 class ModelBenchmark:
     """
@@ -446,12 +445,37 @@ class ModelBenchmark:
             self.val_index, self.test_index = train_test_split(self.temp_index, test_size=0.5, shuffle=True, random_state=42)
 
         elif self.split_method == "cold_mols":
-            # TODO: Implement cold molecules split logic
             # This would split by unique molecules to test generalization to new compounds
+            unique_mols = self.data['Smiles'].unique()
+            def cold_split(unique_items, test_size=0.2, val_size=0.1):
+                temp_items, test_items = train_test_split(unique_items, test_size=test_size, random_state=42)
+                train_items, val_items = train_test_split(temp_items, test_size=val_size / (1 - test_size), random_state=42)
+                return train_items, val_items, test_items
+            
+            train_mols, val_mols, test_mols = cold_split(unique_mols)
+            self.train_index = self.data[self.data['Smiles'].isin(train_mols)].index
+            self.val_index = self.data[self.data['Smiles'].isin(val_mols)].index
+            self.test_index = self.data[self.data['Smiles'].isin(test_mols)].index
+            
+            
             pass
         elif self.split_method == "cold_proteins":
             # TODO: Implement cold proteins split logic  
             # This would split by unique proteins to test generalization to new enzymes
+            unique_proteins = data['Sequence'].unique()
+            def cold_split(unique_items, test_size=0.2, val_size=0.1):
+                temp_items, test_items = train_test_split(unique_items, test_size=test_size, random_state=42)
+                train_items, val_items = train_test_split(temp_items, test_size=val_size / (1 - test_size), random_state=42)
+                return train_items, val_items, test_items
+                
+            train_proteins, val_proteins, test_proteins = cold_split(unique_proteins)
+            self.train_index = self.data[self.data['Sequence'].isin(train_proteins)].index
+            self.val_index = self.data[self.data['Sequence'].isin(val_proteins)].index
+            self.test_index = self.data[self.data['Sequence'].isin(test_proteins)].index
+            
+            
+            
+            
             pass
         elif self.split_method == "load_index_from_file":
             # Load pre-computed split indices from JSON file
@@ -467,8 +491,6 @@ class ModelBenchmark:
             if len(self.train_index)+ len(self.val_index) + len(self.test_index) != len(self.data):
                 raise ValueError("Indices from file do not match the length of the data.")   
             
-        else:
-            raise ValueError(f"Unknown split method: {self.split_method}")
         
         print("get split indices successfully")
         
